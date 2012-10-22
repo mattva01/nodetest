@@ -3,7 +3,7 @@ var app = require('http').createServer(handler)
   , fs = require('fs')
 
 app.listen(80);
-
+var users =[];
 function handler (req, res) {
   fs.readFile(__dirname + '/index.html',
   function (err, data) {
@@ -18,8 +18,21 @@ function handler (req, res) {
 }
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
+       socket.on('newuser', function (username)	{
+       socket.username = username;
+       users.push(username);
+       socket.emit("adminmessage","CONNECTED")
+       socket.broadcast.emit("adminmessage",username+" CONNECTED");
+       });
+
+socket.on('disconnect', function(){
+		socket.broadcast.emit('adminmessage', socket.username + ' has disconnected');
+
 });
+
+socket.on('sendchat', function (data) {
+    io.sockets.emit('clientmessage', socket.username, data);
+});
+
+});
+
