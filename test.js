@@ -2,6 +2,7 @@ var app = require('http').createServer(handler)
 , io = require('socket.io').listen(app)
 , fs = require('fs')
 
+sanitize = require('validator').sanitize
 app.listen(80);
 var users =[];
 function handler (req, res) {
@@ -20,10 +21,10 @@ function handler (req, res) {
 io.sockets.on('connection', function (socket) {
 
    socket.on('newuser', function (username)	{
-     socket.username = username;
+     socket.username = sanitize(username).entityEncode();
      users.push(username);
      socket.emit("adminmessage","CONNECTED")
-     socket.broadcast.emit("adminmessage",username+" CONNECTED");
+     socket.broadcast.emit("adminmessage",socket.username+" CONNECTED");
  });
 
    socket.on('disconnect', function(){
@@ -32,7 +33,8 @@ io.sockets.on('connection', function (socket) {
   });
 
    socket.on('sendchat', function (data) {
-      io.sockets.emit('clientmessage', socket.username, data);
+      sanitized_string = sanitize(data).entityEncode() 
+      io.sockets.emit('clientmessage', socket.username, sanitized_string);
   });
 
 });
