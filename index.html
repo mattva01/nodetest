@@ -22,8 +22,8 @@
 
   $(function(){
     $('#datasend').click( function() {
-       var message = $("data").val();
-       $('#data').val('');
+       var message = $("#textinput").val();
+       $('#textinput').val('');
        socket.emit('sendchat', message);
    });
 });
